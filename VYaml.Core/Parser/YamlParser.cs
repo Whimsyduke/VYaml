@@ -65,16 +65,8 @@ namespace VYaml.Parser
 
     public ref partial struct YamlParser
     {
-        public static YamlParser FromBytes(Memory<byte> bytes)
+        public static YamlParser FromUtf8YamlTokenizer(ref Utf8YamlTokenizer tokenizer)
         {
-            var sequence = new ReadOnlySequence<byte>(bytes);
-            var tokenizer = new Utf8YamlTokenizer(sequence);
-            return new YamlParser(tokenizer);
-        }
-
-        public static YamlParser FromSequence(in ReadOnlySequence<byte> sequence)
-        {
-            var tokenizer = new Utf8YamlTokenizer(sequence);
             return new YamlParser(tokenizer);
         }
 

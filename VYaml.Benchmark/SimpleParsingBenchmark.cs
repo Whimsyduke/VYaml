@@ -1,3 +1,5 @@
+using System.Buffers;
+using System;
 using System.Text;
 using BenchmarkDotNet.Attributes;
 using VYaml.Parser;
@@ -37,7 +39,9 @@ public class SimpleParsingBenchmark
     {
         // for (var i = 0; i < N; i++)
         {
-            using var parser = YamlParser.FromBytes(yamlBytes!);
+            var sequence = new ReadOnlySequence<byte>(yamlBytes!);
+            var tokenizer = new Utf8YamlTokenizer(sequence);
+            using var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
             while (parser.Read())
             {
             }

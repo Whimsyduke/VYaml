@@ -87,13 +87,16 @@ namespace VYaml.Serialization
 
         public static T Deserialize<T>(ReadOnlyMemory<byte> memory, YamlSerializerOptions? options = null)
         {
-            var parser = YamlParser.FromSequence(new ReadOnlySequence<byte>(memory));
+            var sequence = new ReadOnlySequence<byte>(memory);
+            var tokenizer = new Utf8YamlTokenizer(sequence);
+            var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
             return Deserialize<T>(ref parser, options);
         }
 
         public static T Deserialize<T>(in ReadOnlySequence<byte> sequence, YamlSerializerOptions? options = null)
         {
-            var parser = YamlParser.FromSequence(sequence);
+            var tokenizer = new Utf8YamlTokenizer(sequence);
+            var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
             return Deserialize<T>(ref parser, options);
         }
 
@@ -146,13 +149,16 @@ namespace VYaml.Serialization
 
         public static IEnumerable<T> DeserializeMultipleDocuments<T>(ReadOnlyMemory<byte> memory, YamlSerializerOptions? options = null)
         {
-            var parser = YamlParser.FromSequence(new ReadOnlySequence<byte>(memory));
+            var sequence = new ReadOnlySequence<byte>(memory);
+            var tokenizer = new Utf8YamlTokenizer(sequence);
+            var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
             return DeserializeMultipleDocuments<T>(ref parser, options);
         }
 
         public static IEnumerable<T> DeserializeMultipleDocuments<T>(in ReadOnlySequence<byte> sequence, YamlSerializerOptions? options = null)
         {
-            var parser = YamlParser.FromSequence(sequence);
+            var tokenizer = new Utf8YamlTokenizer(sequence);
+            var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
             return DeserializeMultipleDocuments<T>(ref parser, options);
         }
 

@@ -12,7 +12,7 @@ namespace VYaml.Tests.Parser
         [Test]
         public void SkipCurrentNode()
         {
-            CreateParser(new []
+            var yaml = string.Join('\n', new[]
             {
                 "a: 1",
                 "b: { ba: 2 }",
@@ -20,7 +20,10 @@ namespace VYaml.Tests.Parser
                 "d: { da: [100, 200, 300], db: 100 }",
                 "e: { ea: [{eaa: 100}, 200, 300], db: {} }",
                 "f: [{ fa: 100, fb: [100, 200, 300] }]",
-            }, out var parser);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var tokenizer = new Utf8YamlTokenizer(sequence);
+            var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
 
             parser.SkipAfter(ParseEventType.MappingStart);
             Assert.That(parser.GetScalarAsString(), Is.EqualTo("a"));
@@ -53,12 +56,15 @@ namespace VYaml.Tests.Parser
         [Test]
         public void Tag_BlockMapping()
         {
-            CreateParser(new []
+            var yaml = string.Join('\n', new[]
             {
                 "!tag1",
                 "a: 100",
                 "b: 200",
-            }, out var parser);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var tokenizer = new Utf8YamlTokenizer(sequence);
+            var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
 
             parser.SkipAfter(ParseEventType.DocumentStart);
             Assert.That(parser.CurrentEventType, Is.EqualTo(ParseEventType.MappingStart));
@@ -69,8 +75,8 @@ namespace VYaml.Tests.Parser
         [Test]
         public void UnityFormat()
         {
-            CreateParser(new []
-            {
+            var yaml = string.Join('\n', new[]
+            {                
                 "%YAML 1.1",
                 "%TAG !u! tag:unity3d.com,2011:",
                 "--- !u!29 &1",
@@ -105,7 +111,10 @@ namespace VYaml.Tests.Parser
                 "  serializedVersion: 2",
                 "  m_Modification:",
                 "    serializedVersion: 2",
-            }, out var parser);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var tokenizer = new Utf8YamlTokenizer(sequence);
+            var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
 
             parser.SkipAfter(ParseEventType.StreamStart);
 
@@ -166,18 +175,6 @@ namespace VYaml.Tests.Parser
 
             Assert.That(parser.CurrentEventType, Is.EqualTo(ParseEventType.StreamEnd));
             Assert.That(parser.Read(), Is.False);
-        }
-
-        static void CreateParser(IEnumerable<string> lines, out YamlParser tokenizer)
-        {
-            var yaml = string.Join('\n', lines);
-            CreateParser(yaml, out tokenizer);
-        }
-
-        static void CreateParser(string yaml, out YamlParser x)
-        {
-            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
-            x = YamlParser.FromSequence(sequence);
         }
     }
 }

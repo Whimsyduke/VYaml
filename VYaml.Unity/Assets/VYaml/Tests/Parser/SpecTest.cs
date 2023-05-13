@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using NUnit.Framework;
 using VYaml.Internal;
@@ -1313,7 +1314,9 @@ namespace VYaml.Tests.Parser
         {
             Assert.Throws<YamlParserException>(() =>
             {
-                var parser = YamlParser.FromBytes(StringEncoding.Utf8.GetBytes(SpecExamples.Ex6_27b));
+                var sequence = new ReadOnlySequence<byte>(StringEncoding.Utf8.GetBytes(SpecExamples.Ex6_27b));
+                var tokenizer = new Utf8YamlTokenizer(sequence);
+                var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
                 while (parser.Read())
                 {
                 }
@@ -1778,7 +1781,9 @@ namespace VYaml.Tests.Parser
         {
             Assert.Throws<YamlParserException>(() =>
             {
-                var parser = YamlParser.FromBytes(StringEncoding.Utf8.GetBytes(SpecExamples.Ex7_22));
+                var sequence = new ReadOnlySequence<byte>(StringEncoding.Utf8.GetBytes(SpecExamples.Ex7_22));
+                var tokenizer = new Utf8YamlTokenizer(sequence);
+                var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
                 while (parser.Read())
                 {
                 }
@@ -1871,7 +1876,9 @@ namespace VYaml.Tests.Parser
         {
             Assert.Throws<YamlParserException>(() =>
             {
-                var parser = YamlParser.FromBytes(StringEncoding.Utf8.GetBytes(SpecExamples.Ex8_3a));
+                var sequence = new ReadOnlySequence<byte>(StringEncoding.Utf8.GetBytes(SpecExamples.Ex8_3a));
+                var tokenizer = new Utf8YamlTokenizer(sequence);
+                var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
                 while (parser.Read())
                 {
                 }
@@ -1879,7 +1886,9 @@ namespace VYaml.Tests.Parser
 
             Assert.Throws<YamlParserException>(() =>
             {
-                var parser = YamlParser.FromBytes(StringEncoding.Utf8.GetBytes(SpecExamples.Ex8_3b));
+                var sequence = new ReadOnlySequence<byte>(StringEncoding.Utf8.GetBytes(SpecExamples.Ex8_3b));
+                var tokenizer = new Utf8YamlTokenizer(sequence);
+                var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
                 while (parser.Read())
                 {
                 }
@@ -1887,7 +1896,9 @@ namespace VYaml.Tests.Parser
 
             Assert.Throws<YamlParserException>(() =>
             {
-                var parser = YamlParser.FromBytes(StringEncoding.Utf8.GetBytes(SpecExamples.Ex8_3c));
+                var sequence = new ReadOnlySequence<byte>(StringEncoding.Utf8.GetBytes(SpecExamples.Ex8_3c));
+                var tokenizer = new Utf8YamlTokenizer(sequence);
+                var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
                 while (parser.Read())
                 {
                 }
@@ -2300,7 +2311,9 @@ namespace VYaml.Tests.Parser
 
         static void AssertParseEvents(string yaml, IReadOnlyList<TestParseResult> expects)
         {
-            using var parser = YamlParser.FromBytes(StringEncoding.Utf8.GetBytes(yaml));
+            var sequence = new ReadOnlySequence<byte>(StringEncoding.Utf8.GetBytes(yaml));
+            var tokenizer = new Utf8YamlTokenizer(sequence);
+            using var parser = YamlParser.FromUtf8YamlTokenizer(ref tokenizer);
             for (var i = 0; i < expects.Count; i++)
             {
                 var expect = expects[i];

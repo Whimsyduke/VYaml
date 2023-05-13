@@ -12,7 +12,8 @@ namespace VYaml.Tests
         [Test]
         public void Empty()
         {
-            CreateTokenizer("", out var tokenizer);
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(""));
+            var tokenizer = new Utf8YamlTokenizer(sequence);
             Assert.That(tokenizer.Read(), Is.True);
             Assert.That(tokenizer.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
             Assert.That(tokenizer.Read(), Is.True);
@@ -26,7 +27,8 @@ namespace VYaml.Tests
         [TestCase(":,b")]
         public void PlainScaler(string scalerValue)
         {
-            CreateTokenizer(scalerValue, out var reader);
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(scalerValue));
+            var reader = new Utf8YamlTokenizer(sequence);
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
 
@@ -42,12 +44,14 @@ namespace VYaml.Tests
         [Test]
         public void ExplicitScaler()
         {
-            CreateTokenizer(new []
+            var yaml = string.Join('\n', new[]
             {
                 "---",
                 "'a scaler'",
                 "---",
-            }, out var reader);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var reader = new Utf8YamlTokenizer(sequence);
 
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -62,7 +66,8 @@ namespace VYaml.Tests
         [Test]
         public void FlowSequence()
         {
-            CreateTokenizer("[item 1, item 2, item 3]", out var tokenizer);
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes("[item 1, item 2, item 3]"));
+            var tokenizer = new Utf8YamlTokenizer(sequence);
 
             Assert.That(tokenizer.Read(), Is.True);
             Assert.That(tokenizer.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -99,13 +104,15 @@ namespace VYaml.Tests
         [Test]
         public void FlowMapping()
         {
-            CreateTokenizer(new []
+            var yaml = string.Join('\n', new[]
             {
                 "{",
                 "  a simple key: a value, # Note that the KEY token is produced.",
                 "  ? a complex key: another value,",
                 "}"
-            }, out var reader);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var reader = new Utf8YamlTokenizer(sequence);
 
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -159,7 +166,7 @@ namespace VYaml.Tests
         [Test]
         public void BlockSequences()
         {
-            CreateTokenizer(new []
+            var yaml = string.Join('\n', new[]
             {
                 "- item 1",
                 "- item 2",
@@ -169,7 +176,9 @@ namespace VYaml.Tests
                 "-",
                 "  key 1: value 1",
                 "  key 2: value 2",
-            }, out var reader);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var reader = new Utf8YamlTokenizer(sequence);
 
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -258,7 +267,7 @@ namespace VYaml.Tests
         [Test]
         public void BlockMappings()
         {
-            CreateTokenizer(new []
+            var yaml = string.Join('\n', new[]
             {
                 "a simple key: a value   # The KEY token is produced here.",
                 "? a complex key",
@@ -269,7 +278,9 @@ namespace VYaml.Tests
                 "a sequence:",
                 "  - item 1",
                 "  - item 2"
-            }, out var reader);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var reader = new Utf8YamlTokenizer(sequence);
 
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -378,12 +389,14 @@ namespace VYaml.Tests
         [Test]
         public void NoBlockSequenceStart()
         {
-            CreateTokenizer(new []
+            var yaml = string.Join('\n', new[]
             {
-                "key:",
+                 "key:",
                 "- item 1",
                 "- item 2",
-            }, out var reader);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var reader = new Utf8YamlTokenizer(sequence);
 
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -423,15 +436,17 @@ namespace VYaml.Tests
         [Test]
         public void CollectionsInSequence()
         {
-            CreateTokenizer(new []
+            var yaml = string.Join('\n', new[]
             {
-                "- - item 1",
+               "- - item 1",
                 "  - item 2",
                 "- key 1: value 1",
                 "  key 2: value 2",
                 "- ? complex key",
                 "  : complex value",
-            }, out var reader);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var reader = new Utf8YamlTokenizer(sequence);
 
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -525,7 +540,7 @@ namespace VYaml.Tests
         [Test]
         public void CollectionsInMapping()
         {
-            CreateTokenizer(new []
+            var yaml = string.Join('\n', new[]
             {
                 "? a sequence",
                 ": - item 1",
@@ -533,7 +548,9 @@ namespace VYaml.Tests
                 "? a mapping",
                 ": key 1: value 1",
                 "  key 2: value 2",
-            }, out var reader);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var reader = new Utf8YamlTokenizer(sequence);
 
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -618,13 +635,15 @@ namespace VYaml.Tests
         [Test]
         public void SpecEx7_3()
         {
-            CreateTokenizer(new []
+            var yaml = string.Join('\n', new[]
             {
                 "{",
                 "    ? foo :,",
                 "    : bar,",
                 "}"
-            }, out var reader);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var reader = new Utf8YamlTokenizer(sequence);
 
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -665,7 +684,7 @@ namespace VYaml.Tests
         [Ignore("")]
         public void Mix()
         {
-            CreateTokenizer(new[]
+            var yaml = string.Join('\n', new[]
             {
                 "- item 1",
                 "- item 2",
@@ -676,7 +695,10 @@ namespace VYaml.Tests
                 "  key 1: value 1",
                 "  key 2: value 2",
                 "  key 3: { a: [{x: 100, y: 200}, {x: 300, y: 400}] }"
-            }, out var reader);
+            });
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
+            var reader = new Utf8YamlTokenizer(sequence);
+
         }
 
         [Test]
@@ -684,7 +706,8 @@ namespace VYaml.Tests
         [TestCase('?')]
         public void PlainScaler_StartingWithIndicatorInFlow(char literal)
         {
-            CreateTokenizer($"{{a: {literal}b}}", out var reader);
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes($"{{a: {literal}b}}"));
+            var reader = new Utf8YamlTokenizer(sequence);
 
             Assert.That(reader.Read(), Is.True);
             Assert.That(reader.CurrentTokenType, Is.EqualTo(TokenType.StreamStart));
@@ -722,22 +745,11 @@ namespace VYaml.Tests
         [TestCase("null0", ExpectedResult = false)]
         public bool IsNull(string input)
         {
-            CreateTokenizer(input, out var tokenizer);
+            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(input));
+            var tokenizer = new Utf8YamlTokenizer(sequence);
             tokenizer.Read();
             tokenizer.Read();
             return Scalar(ref tokenizer).IsNull();
-        }
-
-        static void CreateTokenizer(IEnumerable<string> lines, out Utf8YamlTokenizer tokenizer)
-        {
-            var yaml = string.Join('\n', lines);
-            CreateTokenizer(yaml, out tokenizer);
-        }
-
-        static void CreateTokenizer(string yaml, out Utf8YamlTokenizer x)
-        {
-            var sequence = new ReadOnlySequence<byte>(Encoding.UTF8.GetBytes(yaml));
-            x = new Utf8YamlTokenizer(sequence);
         }
 
         static Scalar Scalar(ref Utf8YamlTokenizer tokenizer)
